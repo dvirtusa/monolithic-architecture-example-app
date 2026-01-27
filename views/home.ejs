@@ -9,9 +9,10 @@
     <body>
         <h1>Monolithic Architecture Application</h1>
         <hr>
+        <div id="error-message" style="color: red; display: none; margin-bottom: 10px;"></div>
         <form action="" id="register">
-            <input type="text" name="name" id="name" placeholder="enter name">
-            <input type="text" name="email" id="email" placeholder="enter email">
+            <input type="text" name="name" id="name" placeholder="enter name" required minlength="2">
+            <input type="email" name="email" id="email" placeholder="enter email" required>
             <button onclick="register(event)">Register</button>
         </form>
 
@@ -34,11 +35,28 @@
             location.reload();
         }
         
+        function showError(message) {
+            $("#error-message").text(message).show();
+            setTimeout(() => $("#error-message").hide(), 5000);
+        }
+
         function register(event) {
             event.preventDefault();
-            console.log("hi")
-            const name = $("#name").val();
-            const email = $("#email").val();
+            $("#error-message").hide();
+            
+            const name = $("#name").val().trim();
+            const email = $("#email").val().trim();
+
+            // Client-side validation
+            if (!name) {
+                showError("Name is required");
+                return;
+            }
+            
+            if (!email) {
+                showError("Email is required");
+                return;
+            }
 
             $.ajax({
                 type: "POST",
@@ -50,6 +68,13 @@
                     localStorage.setItem("email", result.email);
                     localStorage.setItem("name", result.name);
                     location.reload();
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    const errorMsg = response && response.message 
+                        ? response.message 
+                        : "Registration failed. Please try again.";
+                    showError(errorMsg);
                 }
             });
         }
