@@ -11,24 +11,40 @@ app.use(bodyParser.json());
 
 // Connect to running database
 const mongoHost = process.env.MONGODB_HOST || '127.0.0.1';
-mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PW}@${mongoHost}:27017/monolithic_app_db?authSource=monolithic_app_db`, 
-    {useNewUrlParser: true});
+const mongoUri = `mongodb://${process.env.DB_USER}:${process.env.DB_PW}@${mongoHost}:27017/monolithic_app_db?authSource=monolithic_app_db`;
+
+mongoose.connect(mongoUri)
+    .then(() => {
+        console.log('Successfully connected to MongoDB');
+    })
+    .catch((err) => {
+        console.error('MongoDB connection error:', err.message);
+    });
+
+// Handle connection events
+mongoose.connection.on('error', (err) => {
+    console.error('MongoDB error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB disconnected');
+});
 
 // User schema for mongodb
 const UserSchema = mongoose.Schema({
-	name: { type: String },
+    name: { type: String },
     email: { type: String }
-}, { collection: 'users' } );
+}, { collection: 'users' });
 
 // Define the mongoose model for use below in method
 const User = mongoose.model('User', UserSchema);
 
-function getUserByEmail (email, callback) {
-      try {
-            User.findOne({ email: email }, callback);
-      } catch (err) {
-            callback(err);
-      }
+function getUserByEmail(email, callback) {
+    try {
+        User.findOne({ email: email }, callback);
+    } catch (err) {
+        callback(err);
+    }
 };
 
 // set the view engine to ejs
@@ -39,18 +55,28 @@ app.get('/', function(req, res) {
     res.render('home');
 });
 
-app.post('/register', function(req, res) {
-    
-    const newUser = new User({
-        name: req.body.name,
-        email: req.body.email
-    });
+// Health check endpoint
+app.get('/health', function(req, res) {
+    res.status(200).json({ status: 'healthy' });
+});
 
-    newUser.save((err, user) => {
-        res.status(200).json(user);
-    });
+app.post('/register', async function(req, res) {
+    try {
+        const newUser = new User({
+            name: req.body.name,
+            email: req.body.email
+        });
 
+        const savedUser = await newUser.save();
+        res.status(200).json(savedUser);
+    } catch (err) {
+        console.error('Registration error:', err.message);
+        res.status(500).json({ 
+            error: 'Registration failed', 
+            message: err.message 
+        });
+    }
 });
 
 app.listen(8080);
-console.log("Visit app at http://localhost:8080")
+console.log("Visit app at http://localhost:8080");
