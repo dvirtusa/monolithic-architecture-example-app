@@ -32,7 +32,7 @@ Each layer is separated in this application, but it remains monolithic because a
 | Version | Port | Description |
 |---------|------|-------------|
 | **Node.js** | 8080 | Original demo application |
-| **Python** | 8081 | Production-ready version with auth, validation, tests |
+| **Python** | 5000 | Production-ready version with auth, validation, tests |
 
 ---
 
@@ -53,8 +53,8 @@ docker-compose up -d --build
 | Service | URL |
 |---------|-----|
 | Node.js App | http://localhost:8080 |
-| Python App | http://localhost:8081 |
-| Python API Docs | http://localhost:8081/docs |
+| Python App | http://localhost:5000 |
+| Python API Docs | http://localhost:5000/docs |
 | MongoDB | localhost:27017 |
 
 ### Docker Commands
@@ -170,7 +170,7 @@ See [python_app/README.md](python_app/README.md) for details.
 │                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
 │  │   MongoDB   │  │  Node.js    │  │      Python         │ │
-│  │   :27017    │  │   :8080     │  │       :8081         │ │
+│  │   :27017    │  │   :8080     │  │       :5000         │ │
 │  │             │  │             │  │                     │ │
 │  │  - users    │◄─┤  app.js     │  │  FastAPI + Motor    │ │
 │  │  collection │  │  (Express)  │  │  (async MongoDB)    │ │

@@ -66,8 +66,8 @@ From the **root directory** of the project:
 # Start all services (MongoDB + Node.js + Python)
 docker-compose up --build
 
-# Access Python app at http://localhost:8081
-# Access API docs at http://localhost:8081/docs
+# Access Python app at http://localhost:5000
+# Access API docs at http://localhost:5000/docs
 ```
 
 ### Run Python App Only (Docker)
@@ -79,7 +79,7 @@ cd python_app
 docker build -t python-monolithic-app .
 
 # Run with external MongoDB
-docker run -p 8081:8080 \
+docker run -p 5000:8080 \
   -e MONGODB_URL=mongodb://user:password@host.docker.internal:27017/monolithic_app_db \
   -e SECRET_KEY=your-secret-key-here \
   -e DATABASE_NAME=monolithic_app_db \
@@ -260,10 +260,10 @@ pytest --cov=app --cov-report=html
 docker build -t python-monolithic-app .
 
 # Run container
-docker run -p 8081:8080 --env-file .env python-monolithic-app
+docker run -p 5000:8080 --env-file .env python-monolithic-app
 
 # Run with inline environment variables
-docker run -p 8081:8080 \
+docker run -p 5000:8080 \
   -e MONGODB_URL=mongodb://localhost:27017 \
   -e DATABASE_NAME=monolithic_app_db \
   -e SECRET_KEY=your-secret-key \
@@ -303,6 +303,6 @@ docker-compose down -v
 The application exposes a health endpoint:
 
 ```bash
-curl http://localhost:8081/health
+curl http://localhost:5000/health
 # Response: {"status": "healthy"}
 ```

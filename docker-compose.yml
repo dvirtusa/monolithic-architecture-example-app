@@ -46,7 +46,7 @@ services:
     container_name: python-app
     restart: unless-stopped
     ports:
-      - "8081:8080"
+      - "5000:8080"
     environment:
       MONGODB_URL: mongodb://appuser:apppassword@mongodb:27017/monolithic_app_db?authSource=monolithic_app_db
       DATABASE_NAME: monolithic_app_db
