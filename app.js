@@ -10,7 +10,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Connect to running database
-mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PW}@127.0.0.1:27017/monolithic_app_db`, 
+const mongoHost = process.env.MONGODB_HOST || '127.0.0.1';
+mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PW}@${mongoHost}:27017/monolithic_app_db?authSource=monolithic_app_db`, 
     {useNewUrlParser: true});
 
 // User schema for mongodb

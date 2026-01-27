@@ -1,43 +1,209 @@
-Here is a very basic monolithic software architecture.  This is the simplest application architecture as explained in [my blog post on architectures](https://zachgoll.github.io/blog/2019/build-production-web-app-part-4/).
+# Monolithic Architecture Example App
 
-A monolithic architecture describes an architecture where all of the following components are bunched into one codebase: 
+A demonstration of monolithic software architecture as explained in [my blog post on architectures](https://zachgoll.github.io/blog/2019/build-production-web-app-part-4/).
 
-* Views 
-* Application/Business Logic 
-* Data Access/Database
+## What is a Monolithic Architecture?
 
-Each of these layers are separated in this application, but it is still a monolithic architecture because a change to any part of the application will require: 
+A monolithic architecture bundles all components into one codebase:
 
-1. The entire application be restarted 
-2. Changes must be made in more than one part of the app 
+* **Views** - User interface templates
+* **Application/Business Logic** - Core functionality
+* **Data Access/Database** - Data persistence layer
 
-# Run the app
+Each layer is separated in this application, but it remains monolithic because any change requires:
 
-You will need MongoDB installed on your computer, start the service, create a database, and create a user to interact with that database.  Don't worry if you do not understand all the commands; this tutorial is not a MongoDB tutorial!
+1. The entire application to be restarted
+2. Changes across multiple parts of the app
 
-```bash 
-mongo
+## Project Structure
 
+```
+├── app.js                 # Main Node.js application
+├── views/
+│   └── home.ejs          # EJS template
+├── python_app/           # Python/FastAPI version (production-ready)
+├── Dockerfile            # Node.js container
+├── docker-compose.yml    # Full stack orchestration
+└── mongo-init.js         # MongoDB initialization
+```
+
+## Available Versions
+
+| Version | Port | Description |
+|---------|------|-------------|
+| **Node.js** | 8080 | Original demo application |
+| **Python** | 8081 | Production-ready version with auth, validation, tests |
+
+---
+
+## Quick Start with Docker (Recommended)
+
+The easiest way to run both applications with MongoDB:
+
+```bash
+# Start all services (MongoDB + Node.js + Python)
+docker-compose up --build
+
+# Run in background
+docker-compose up -d --build
+```
+
+### Access Points
+
+| Service | URL |
+|---------|-----|
+| Node.js App | http://localhost:8080 |
+| Python App | http://localhost:8081 |
+| Python API Docs | http://localhost:8081/docs |
+| MongoDB | localhost:27017 |
+
+### Docker Commands
+
+```bash
+# View logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f nodejs-app
+docker-compose logs -f python-app
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (reset database)
+docker-compose down -v
+
+# Rebuild after code changes
+docker-compose up --build
+```
+
+---
+
+## Run Node.js App Only (Docker)
+
+```bash
+# Build the image
+docker build -t nodejs-monolithic-app .
+
+# Run with external MongoDB
+docker run -p 8080:8080 \
+  -e DB_USER=youruser \
+  -e DB_PW=yourpassword \
+  -e MONGODB_HOST=host.docker.internal \
+  nodejs-monolithic-app
+```
+
+---
+
+## Run Node.js App Locally (Without Docker)
+
+### Prerequisites
+
+- Node.js 18+
+- MongoDB 4.4+
+
+### Setup MongoDB
+
+```bash
+# Start MongoDB shell
+mongosh
+
+# Create database and user
 use monolithic_app_db
 
-db.createUser(
-    {
-        user: "yourname",
-        pwd: "yourpassword",
-        roles: [ "readWrite", "dbAdmin" ]
-    }
-)
+db.createUser({
+    user: "yourname",
+    pwd: "yourpassword",
+    roles: ["readWrite", "dbAdmin"]
+})
 ```
 
-```
-# Set your environment variables
-# Same as above!
+### Run the Application
+
+```bash
+# Set environment variables
 export DB_USER=yourname
 export DB_PW=yourpassword
 
-# Download dependencies
+# Install dependencies
 npm install
 
-# Start App
+# Start the app
 npm run start
 ```
+
+Visit: http://localhost:8080
+
+---
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_USER` | MongoDB username | (required) |
+| `DB_PW` | MongoDB password | (required) |
+| `MONGODB_HOST` | MongoDB host | `127.0.0.1` |
+
+---
+
+## Python Version
+
+A production-ready Python/FastAPI implementation is available in the `python_app/` directory with:
+
+- ✅ JWT Authentication
+- ✅ Password hashing (bcrypt)
+- ✅ Input validation (Pydantic)
+- ✅ Proper error handling
+- ✅ Comprehensive test suite
+- ✅ API documentation (Swagger/ReDoc)
+
+See [python_app/README.md](python_app/README.md) for details.
+
+---
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Docker Compose                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │   MongoDB   │  │  Node.js    │  │      Python         │ │
+│  │   :27017    │  │   :8080     │  │       :8081         │ │
+│  │             │  │             │  │                     │ │
+│  │  - users    │◄─┤  app.js     │  │  FastAPI + Motor    │ │
+│  │  collection │  │  (Express)  │  │  (async MongoDB)    │ │
+│  │             │◄─┼─────────────┼──┤                     │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## API Endpoints
+
+### Node.js App (Port 8080)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Home page |
+| POST | `/register` | Register user |
+
+### Python App (Port 8081)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | Home page |
+| GET | `/health` | Health check |
+| POST | `/api/auth/register` | Register user |
+| POST | `/api/auth/login` | Login |
+| GET | `/api/auth/me` | Get current user |
+| GET | `/docs` | Swagger UI |
+
+---
+
+## License
+
+MIT
