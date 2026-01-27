@@ -278,8 +278,14 @@
         function setLoading(buttonId, loading) {
             const btn = document.getElementById(buttonId);
             btn.disabled = loading;
-            btn.textContent = loading ? 'Please wait...' : btn.dataset.text || btn.textContent;
-            if (!loading) btn.dataset.text = btn.textContent;
+            if (loading) {
+                if (!btn.dataset.text) {
+                    btn.dataset.text = btn.textContent;
+                }
+                btn.textContent = 'Please wait...';
+            } else {
+                btn.textContent = btn.dataset.text || 'Submit';
+            }
         }
         
         document.querySelectorAll('.tab').forEach(tab => {
