@@ -288,12 +288,39 @@
             }
         }
         
+        function resetAllButtons() {
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = loginBtn.dataset.text || 'Sign In';
+            }
+            if (registerBtn) {
+                registerBtn.disabled = false;
+                registerBtn.textContent = registerBtn.dataset.text || 'Create Account';
+            }
+        }
+        
+        function initializeButtons() {
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            
+            if (loginBtn && !loginBtn.dataset.text) {
+                loginBtn.dataset.text = 'Sign In';
+            }
+            if (registerBtn && !registerBtn.dataset.text) {
+                registerBtn.dataset.text = 'Create Account';
+            }
+        }
+        
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 tab.classList.add('active');
                 document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');
+                resetAllButtons();
             });
         });
         
@@ -410,7 +437,10 @@
             showAlert('You have been signed out.', 'success');
         }
         
-        document.addEventListener('DOMContentLoaded', loadUserProfile);
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeButtons();
+            loadUserProfile();
+        });
     </script>
 </body>
 </html>
