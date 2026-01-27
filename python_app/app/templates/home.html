@@ -258,6 +258,23 @@
             setTimeout(() => alert.classList.add('hidden'), 5000);
         }
         
+        function extractErrorMessage(detail) {
+            if (typeof detail === 'string') {
+                return detail;
+            }
+            if (Array.isArray(detail) && detail.length > 0) {
+                const firstError = detail[0];
+                if (firstError.msg) {
+                    return firstError.msg;
+                }
+                return JSON.stringify(firstError);
+            }
+            if (typeof detail === 'object' && detail !== null) {
+                return detail.msg || detail.message || JSON.stringify(detail);
+            }
+            return 'An error occurred';
+        }
+        
         function setLoading(buttonId, loading) {
             const btn = document.getElementById(buttonId);
             btn.disabled = loading;
@@ -292,7 +309,8 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.detail || 'Registration failed');
+                    const errorMsg = extractErrorMessage(data.detail) || 'Registration failed';
+                    throw new Error(errorMsg);
                 }
                 
                 showAlert('Account created successfully! Please sign in.', 'success');
@@ -322,7 +340,8 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.detail || 'Login failed');
+                    const errorMsg = extractErrorMessage(data.detail) || 'Login failed';
+                    throw new Error(errorMsg);
                 }
                 
                 setToken(data.access_token);
