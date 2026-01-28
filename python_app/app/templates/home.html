@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monolithic App - Python</title>
+    <script>
+        window.playerZeroConfig = {
+            projectId: '{{ playerzero_project_id }}',
+            enabled: {{ 'true' if playerzero_project_id else 'false' }},
+            metadata: {
+                app: 'python-monolithic-app',
+                environment: '{{ otel_environment }}'
+            }
+        };
+    </script>
+    <script src="https://cdn.playerzero.app/playerzero.js" async></script>
     <style>
         * {
             box-sizing: border-box;
@@ -346,6 +357,14 @@
                     throw new Error(errorMsg);
                 }
                 
+                if (window.PlayerZero) {
+                    window.PlayerZero.track('User Registered', {
+                        name: data.name,
+                        email: data.email,
+                        userId: data._id
+                    });
+                }
+                
                 showAlert('Account created successfully! Please sign in.', 'success');
                 document.querySelector('[data-tab="login"]').click();
                 document.getElementById('login-email').value = email;
@@ -378,6 +397,13 @@
                 }
                 
                 setToken(data.access_token);
+                
+                if (window.PlayerZero) {
+                    window.PlayerZero.track('User Logged In', {
+                        email: email
+                    });
+                }
+                
                 await loadUserProfile();
             } catch (error) {
                 showAlert(error.message);
@@ -429,9 +455,22 @@
                 year: 'numeric', month: 'long', day: 'numeric'
             });
             document.getElementById('user-created').textContent = `Member since ${createdDate}`;
+            
+            if (window.PlayerZero) {
+                window.PlayerZero.identify(user.email, {
+                    name: user.name,
+                    email: user.email,
+                    userId: user._id,
+                    createdAt: user.created_at
+                });
+            }
         }
         
         function handleLogout() {
+            if (window.PlayerZero) {
+                window.PlayerZero.track('User Logged Out');
+            }
+            
             clearToken();
             showAuthSection();
             showAlert('You have been signed out.', 'success');

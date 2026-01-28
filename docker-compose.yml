@@ -37,6 +37,7 @@ services:
       OTEL_ENVIRONMENT: ${ENVIRONMENT:-docker}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-https://otlp.playerzero.app}
       PLAYERZERO_API_KEY: ${PLAYERZERO_API_KEY:-}
+      PLAYERZERO_PROJECT_ID: ${PLAYERZERO_PROJECT_ID:-}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -64,6 +65,7 @@ services:
       OTEL_ENVIRONMENT: ${ENVIRONMENT:-docker}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-https://otlp.playerzero.app}
       PLAYERZERO_API_KEY: ${PLAYERZERO_API_KEY:-}
+      PLAYERZERO_PROJECT_ID: ${PLAYERZERO_PROJECT_ID:-}
     depends_on:
       mongodb:
         condition: service_healthy
