@@ -7,6 +7,8 @@ This project is instrumented with OpenTelemetry to export traces to PlayerZero f
 Both the Node.js and Python applications are configured to automatically capture and export telemetry data including:
 
 - **Traces**: Request/response flows, database queries, external HTTP calls
+- **Logs**: Application logs exported via OTLP
+- **Metrics**: Application metrics exported via OTLP
 - **Service metadata**: Service name, version, environment
 - **Automatic instrumentation**: Express, FastAPI, MongoDB, HTTP clients
 
@@ -45,10 +47,12 @@ nano .env
 Update the following variables:
 
 ```env
-PLAYERZERO_API_KEY=your-actual-api-key-here
-OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp.playerzero.app
+OTEL_EXPORTER_OTLP_ENDPOINT=https://sdk.playerzero.app/otlp
+OTEL_SERVICE_NAME=My Dataset Name
 ENVIRONMENT=production
 ```
+
+**Note:** Authorization headers are preconfigured in the tracing files.
 
 ### 3. Run with Docker Compose
 
@@ -64,35 +68,45 @@ docker-compose logs python-app | grep "OpenTelemetry"
 Expected output:
 ```
 nodejs-app  | OpenTelemetry tracing initialized
-nodejs-app  | Service: nodejs-monolithic-app
+nodejs-app  | Service: My Dataset Name
 nodejs-app  | Environment: docker
-nodejs-app  | OTLP Endpoint: https://otlp.playerzero.app
+nodejs-app  | OTLP Endpoint: https://sdk.playerzero.app/otlp
+nodejs-app  | Exporters: traces, logs, metrics
 
 python-app  | OpenTelemetry tracing initialized
-python-app  | Service: python-monolithic-app
+python-app  | Service: My Dataset Name
 python-app  | Environment: docker
-python-app  | OTLP Endpoint: https://otlp.playerzero.app
+python-app  | OTLP Endpoint: https://sdk.playerzero.app/otlp
+python-app  | Exporters: traces, logs, metrics
 ```
 
 ## Configuration
 
 ### Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `PLAYERZERO_API_KEY` | PlayerZero API key for authentication | - | Yes |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint URL | `https://otlp.playerzero.app` | No |
-| `OTEL_SERVICE_NAME` | Service identifier | `nodejs-app` / `python-app` | No |
-| `OTEL_ENVIRONMENT` | Deployment environment | `development` | No |
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint URL | `https://sdk.playerzero.app/otlp` |
+| `OTEL_SERVICE_NAME` | Service/dataset name | `My Dataset Name` |
+| `OTEL_ENVIRONMENT` | Deployment environment | `development` |
 
-### Service Names
+### Preconfigured Headers
 
-The services are automatically named in `docker-compose.yml`:
+Authorization headers are hardcoded in the tracing configuration files:
 
-- **Node.js**: `nodejs-monolithic-app`
-- **Python**: `python-monolithic-app`
+```
+Authorization: Bearer 697853e8466deb4c15041e24
+X-PzProd: true
+```
 
-These names will appear in PlayerZero dashboards for filtering and analysis.
+### Exporters
+
+All three OTLP exporters are enabled:
+- **Traces**: `otel.traces.exporter=otlp`
+- **Logs**: `otel.logs.exporter=otlp`
+- **Metrics**: `otel.metrics.exporter=otlp`
+
+These export to the PlayerZero OTLP endpoint for unified observability.
 
 ## What's Being Traced
 
@@ -131,8 +145,12 @@ These names will appear in PlayerZero dashboards for filtering and analysis.
 ```json
 {
   "@opentelemetry/sdk-node": "^0.45.1",
+  "@opentelemetry/sdk-logs": "^0.45.1",
+  "@opentelemetry/sdk-metrics": "^1.19.0",
   "@opentelemetry/auto-instrumentations-node": "^0.40.3",
-  "@opentelemetry/exporter-trace-otlp-http": "^0.45.1"
+  "@opentelemetry/exporter-trace-otlp-http": "^0.45.1",
+  "@opentelemetry/exporter-logs-otlp-http": "^0.45.1",
+  "@opentelemetry/exporter-metrics-otlp-http": "^0.45.1"
 }
 ```
 
@@ -161,8 +179,7 @@ opentelemetry-instrumentation-pymongo==0.43b0
 1. Navigate to [PlayerZero Dashboard](https://playerzero.ai)
 2. Go to **Traces** or **APM** section
 3. Filter by service name:
-   - `nodejs-monolithic-app`
-   - `python-monolithic-app`
+   - `My Dataset Name` (or your configured `OTEL_SERVICE_NAME`)
 4. View request traces, latency, errors, and dependencies
 
 ## Troubleshooting
@@ -177,33 +194,23 @@ docker-compose logs python-app | grep -i "telemetry\|otlp\|error"
 
 **Common issues:**
 
-1. **Missing API key:**
+1. **Network connectivity:**
    ```
-   Error: PLAYERZERO_API_KEY environment variable not set
-   ```
-   Solution: Add API key to `.env` file
-
-2. **Network connectivity:**
-   ```
-   Error: Failed to connect to otlp.playerzero.app
+   Error: Failed to connect to sdk.playerzero.app
    ```
    Solution: Check firewall, VPN, or proxy settings
 
-3. **Invalid endpoint:**
+2. **Invalid authorization:**
    ```
    Error: 401 Unauthorized
    ```
-   Solution: Verify API key is correct and active
+   Solution: Verify the authorization headers in tracing.js/tracing.py are correct
 
 ### Disable Telemetry (Development)
 
-To run without telemetry:
+To run without telemetry, override the endpoint to localhost (no-op):
 
 ```bash
-# Option 1: Remove API key from .env
-PLAYERZERO_API_KEY=
-
-# Option 2: Override endpoint to localhost (no-op)
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ```
 
@@ -269,9 +276,9 @@ Traces are batched and exported asynchronously to avoid blocking requests.
 
 ## Security
 
-- API keys are passed via environment variables (never hardcoded)
-- Traces are sent over HTTPS (TLS encrypted)
-- Sensitive data (passwords, tokens) are NOT captured in traces
+- Authorization headers are configured in the tracing files
+- Traces, logs, and metrics are sent over HTTPS (TLS encrypted)
+- Sensitive data (passwords, tokens) are NOT captured in telemetry
 - Configure span attribute filtering if needed
 
 ## Support

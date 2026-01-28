@@ -13,6 +13,8 @@ A production-ready Python implementation of the monolithic architecture example,
 - **Health Check Endpoint** for monitoring
 - **Interactive API Documentation** (Swagger/ReDoc)
 - **Comprehensive Test Suite**
+- **OpenTelemetry Integration** for distributed tracing
+- **PlayerZero Web SDK** for frontend session tracking
 
 ## Project Structure
 
@@ -23,6 +25,7 @@ python_app/
 │   ├── main.py              # FastAPI application entry point
 │   ├── config.py            # Configuration management
 │   ├── database.py          # MongoDB connection
+│   ├── tracing.py           # OpenTelemetry initialization
 │   ├── models/
 │   │   ├── __init__.py
 │   │   └── user.py          # Pydantic models
@@ -139,6 +142,17 @@ docker run -p 5000:8080 \
 | `HOST` | Server host | `0.0.0.0` |
 | `PORT` | Server port | `8080` |
 | `DEBUG` | Enable debug mode | `false` |
+
+### Observability Variables (Optional)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PLAYERZERO_PROJECT_ID` | PlayerZero project ID for Web SDK | - |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint URL | `https://sdk.playerzero.app/otlp` |
+| `OTEL_SERVICE_NAME` | Service/dataset name | `My Dataset Name` |
+| `OTEL_ENVIRONMENT` | Deployment environment | `development` |
+
+**Note:** Authorization headers are preconfigured in `app/tracing.py`.
 
 ## Running the Application
 

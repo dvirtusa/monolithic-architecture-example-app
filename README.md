@@ -19,12 +19,16 @@ Each layer is separated in this application, but it remains monolithic because a
 
 ```
 ├── app.js                 # Main Node.js application
+├── tracing.js             # OpenTelemetry tracing initialization
 ├── views/
 │   └── home.ejs          # EJS template
 ├── python_app/           # Python/FastAPI version (production-ready)
 ├── Dockerfile            # Node.js container
 ├── docker-compose.yml    # Full stack orchestration
-└── mongo-init.js         # MongoDB initialization
+├── mongo-init.js         # MongoDB initialization
+├── .env.example          # Environment variables template
+├── OPENTELEMETRY.md      # OpenTelemetry integration guide
+└── PLAYERZERO_WEB_SDK.md # Frontend SDK integration guide
 ```
 
 ## Available Versions
@@ -138,11 +142,24 @@ Visit: http://localhost:8080
 
 ## Environment Variables
 
+### Core Variables
+
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DB_USER` | MongoDB username | (required) |
 | `DB_PW` | MongoDB password | (required) |
 | `MONGODB_HOST` | MongoDB host | `127.0.0.1` |
+
+### Observability Variables (Optional)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PLAYERZERO_PROJECT_ID` | PlayerZero project ID for frontend SDK | - |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint URL | `https://sdk.playerzero.app/otlp` |
+| `OTEL_SERVICE_NAME` | Service/dataset name | `My Dataset Name` |
+| `OTEL_ENVIRONMENT` | Deployment environment | `development` |
+
+**Note:** Authorization headers are preconfigured in the tracing files. See [OPENTELEMETRY.md](OPENTELEMETRY.md) for details.
 
 ---
 
@@ -158,6 +175,15 @@ A production-ready Python/FastAPI implementation is available in the `python_app
 - ✅ API documentation (Swagger/ReDoc)
 
 See [python_app/README.md](python_app/README.md) for details.
+
+---
+
+## Observability
+
+Both applications are instrumented with **OpenTelemetry** for backend tracing and **PlayerZero Web SDK** for frontend session tracking:
+
+- **[OpenTelemetry Integration](OPENTELEMETRY.md)** - Backend traces, database queries, HTTP calls
+- **[PlayerZero Web SDK](PLAYERZERO_WEB_SDK.md)** - Frontend session recording, error tracking, user identification
 
 ---
 
@@ -189,9 +215,10 @@ See [python_app/README.md](python_app/README.md) for details.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/` | Home page |
+| GET | `/health` | Health check |
 | POST | `/register` | Register user |
 
-### Python App (Port 8081)
+### Python App (Port 5000)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
