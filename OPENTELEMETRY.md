@@ -7,8 +7,6 @@ This project is instrumented with OpenTelemetry to export traces to PlayerZero f
 Both the Node.js and Python applications are configured to automatically capture and export telemetry data including:
 
 - **Traces**: Request/response flows, database queries, external HTTP calls
-- **Logs**: Application logs exported via OTLP
-- **Metrics**: Application metrics exported via OTLP
 - **Service metadata**: Service name, version, environment
 - **Automatic instrumentation**: Express, FastAPI, MongoDB, HTTP clients
 
@@ -67,13 +65,12 @@ docker-compose logs python-app | grep "OpenTelemetry"
 
 Expected output:
 ```
-nodejs-app  | OpenTelemetry tracing initialized
+nodejs-app  | OpenTelemetry initialized successfully
 nodejs-app  | Service: My Dataset Name
 nodejs-app  | Environment: docker
 nodejs-app  | OTLP Endpoint: https://sdk.playerzero.app/otlp
-nodejs-app  | Exporters: traces, logs, metrics
 
-python-app  | OpenTelemetry tracing initialized
+python-app  | OpenTelemetry initialized successfully
 python-app  | Service: My Dataset Name
 python-app  | Environment: docker
 python-app  | OTLP Endpoint: https://sdk.playerzero.app/otlp
@@ -102,12 +99,10 @@ X-PzProd: true
 
 ### Exporters
 
-All three OTLP exporters are enabled:
-- **Traces**: `otel.traces.exporter=otlp`
-- **Logs**: `otel.logs.exporter=otlp`
-- **Metrics**: `otel.metrics.exporter=otlp`
+- **Node.js**: Traces only (optimized for fast builds)
+- **Python**: Traces, logs, and metrics
 
-These export to the PlayerZero OTLP endpoint for unified observability.
+These export to the PlayerZero OTLP endpoint for observability.
 
 ## What's Being Traced
 
@@ -146,14 +141,14 @@ These export to the PlayerZero OTLP endpoint for unified observability.
 ```json
 {
   "@opentelemetry/sdk-node": "^0.45.1",
-  "@opentelemetry/sdk-logs": "^0.45.1",
-  "@opentelemetry/sdk-metrics": "^1.19.0",
-  "@opentelemetry/auto-instrumentations-node": "^0.40.3",
   "@opentelemetry/exporter-trace-otlp-http": "^0.45.1",
-  "@opentelemetry/exporter-logs-otlp-http": "^0.45.1",
-  "@opentelemetry/exporter-metrics-otlp-http": "^0.45.1"
+  "@opentelemetry/instrumentation-express": "^0.34.1",
+  "@opentelemetry/instrumentation-http": "^0.45.1",
+  "@opentelemetry/instrumentation-mongodb": "^0.38.1"
 }
 ```
+
+> **Note:** We use specific instrumentations instead of `@opentelemetry/auto-instrumentations-node` to reduce build time from 5+ minutes to under 1 minute.
 
 **Startup:**
 ```bash

@@ -26,14 +26,13 @@
     "mongoose": "^5.5.4",
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/sdk-node": "^0.45.1",
-    "@opentelemetry/sdk-logs": "^0.45.1",
-    "@opentelemetry/sdk-metrics": "^1.19.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.40.3",
+    "@opentelemetry/sdk-trace-node": "^1.19.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.45.1",
-    "@opentelemetry/exporter-logs-otlp-http": "^0.45.1",
-    "@opentelemetry/exporter-metrics-otlp-http": "^0.45.1",
     "@opentelemetry/resources": "^1.19.0",
-    "@opentelemetry/semantic-conventions": "^1.19.0"
+    "@opentelemetry/semantic-conventions": "^1.19.0",
+    "@opentelemetry/instrumentation-express": "^0.34.1",
+    "@opentelemetry/instrumentation-http": "^0.45.1",
+    "@opentelemetry/instrumentation-mongodb": "^0.38.1"
   },
   "devDependencies": {
     "nodemon": "^1.18.11"

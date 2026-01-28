@@ -10,14 +10,12 @@ let sdk;
 
 try {
     const { NodeSDK } = require('@opentelemetry/sdk-node');
-    const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
     const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
-    const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-http');
-    const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
-    const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
     const { Resource } = require('@opentelemetry/resources');
     const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
-    const { SimpleLogRecordProcessor } = require('@opentelemetry/sdk-logs');
+    const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
+    const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
+    const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
     const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
 
     // Suppress verbose OpenTelemetry logs (only show errors)
@@ -38,18 +36,6 @@ try {
         timeoutMillis: 5000,
     });
 
-    const logExporter = new OTLPLogExporter({
-        url: `${otlpEndpoint}/v1/logs`,
-        headers: otlpHeaders,
-        timeoutMillis: 5000,
-    });
-
-    const metricExporter = new OTLPMetricExporter({
-        url: `${otlpEndpoint}/v1/metrics`,
-        headers: otlpHeaders,
-        timeoutMillis: 5000,
-    });
-
     sdk = new NodeSDK({
         resource: new Resource({
             [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
@@ -57,17 +43,10 @@ try {
             [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: environment,
         }),
         traceExporter,
-        logRecordProcessor: new SimpleLogRecordProcessor(logExporter),
-        metricReader: new PeriodicExportingMetricReader({
-            exporter: metricExporter,
-            exportIntervalMillis: 60000,
-        }),
         instrumentations: [
-            getNodeAutoInstrumentations({
-                '@opentelemetry/instrumentation-fs': {
-                    enabled: false,
-                },
-            }),
+            new HttpInstrumentation(),
+            new ExpressInstrumentation(),
+            new MongoDBInstrumentation(),
         ],
     });
 
@@ -76,7 +55,6 @@ try {
     console.log(`Service: ${serviceName}`);
     console.log(`Environment: ${environment}`);
     console.log(`OTLP Endpoint: ${otlpEndpoint}`);
-    console.log('Exporters: traces, logs, metrics');
 
 } catch (error) {
     console.warn(`Failed to initialize OpenTelemetry: ${error.message}`);
