@@ -2,12 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
 
-RUN npm config set fetch-retry-mintimeout 20000 && \
+RUN apk add --no-cache --virtual .build-deps python3 make g++ && \
+    npm config set fetch-retry-mintimeout 20000 && \
     npm config set fetch-retry-maxtimeout 120000 && \
     npm config set fetch-timeout 300000 && \
-    npm install --omit=dev --loglevel=verbose && \
+    npm install --production --no-optional --prefer-offline && \
+    apk del .build-deps && \
     npm cache clean --force
 
 COPY . .
