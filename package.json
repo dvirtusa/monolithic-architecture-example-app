@@ -23,7 +23,9 @@
     "cors": "^2.8.5",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "mongoose": "^5.5.4",
+    "mongoose": "^5.5.4"
+  },
+  "optionalDependencies": {
     "@opentelemetry/api": "^1.7.0",
     "@opentelemetry/sdk-node": "^0.45.1",
     "@opentelemetry/sdk-trace-node": "^1.19.0",
