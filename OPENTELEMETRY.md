@@ -86,6 +86,7 @@ python-app  | Exporters: traces, logs, metrics
 
 | Variable | Description | Default |
 |----------|-------------|---------|
+| `OTEL_ENABLED` | Enable/disable telemetry | `true` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint URL | `https://sdk.playerzero.app/otlp` |
 | `OTEL_SERVICE_NAME` | Service/dataset name | `My Dataset Name` |
 | `OTEL_ENVIRONMENT` | Deployment environment | `development` |
@@ -206,13 +207,26 @@ docker-compose logs python-app | grep -i "telemetry\|otlp\|error"
    ```
    Solution: Verify the authorization headers in tracing.js/tracing.py are correct
 
-### Disable Telemetry (Development)
+### Disable Telemetry
 
-To run without telemetry, override the endpoint to localhost (no-op):
+To completely disable telemetry:
+
+```bash
+OTEL_ENABLED=false
+```
+
+Alternatively, override the endpoint to localhost:
 
 ```bash
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ```
+
+### Graceful Failure Handling
+
+Telemetry is optional and non-blocking:
+- If the OTLP endpoint is unreachable, the application continues normally
+- Export errors are suppressed to avoid log noise
+- Shorter timeouts (5s) prevent slow startup
 
 ### Test Telemetry Locally
 

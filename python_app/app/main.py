@@ -11,7 +11,7 @@ from app.config import get_settings
 from app.database import connect_to_database, close_database_connection
 from app.routes import auth_router, pages_router
 from app.utils.exceptions import AppException
-from app.tracing import setup_telemetry
+from app.tracing import setup_telemetry, suppress_otel_errors
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 setup_telemetry()
+suppress_otel_errors()
 
 
 @asynccontextmanager
