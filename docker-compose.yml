@@ -33,6 +33,10 @@ services:
       DB_USER: appuser
       DB_PW: apppassword
       MONGODB_HOST: mongodb
+      OTEL_SERVICE_NAME: nodejs-monolithic-app
+      OTEL_ENVIRONMENT: ${ENVIRONMENT:-docker}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-https://otlp.playerzero.app}
+      PLAYERZERO_API_KEY: ${PLAYERZERO_API_KEY:-}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -56,6 +60,10 @@ services:
       HOST: 0.0.0.0
       PORT: 8080
       DEBUG: "false"
+      OTEL_SERVICE_NAME: python-monolithic-app
+      OTEL_ENVIRONMENT: ${ENVIRONMENT:-docker}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-https://otlp.playerzero.app}
+      PLAYERZERO_API_KEY: ${PLAYERZERO_API_KEY:-}
     depends_on:
       mongodb:
         condition: service_healthy

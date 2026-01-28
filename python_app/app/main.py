@@ -11,6 +11,7 @@ from app.config import get_settings
 from app.database import connect_to_database, close_database_connection
 from app.routes import auth_router, pages_router
 from app.utils.exceptions import AppException
+from app.tracing import setup_telemetry
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,6 +20,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
+
+setup_telemetry()
 
 
 @asynccontextmanager

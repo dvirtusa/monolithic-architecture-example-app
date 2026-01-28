@@ -23,7 +23,12 @@
     "cors": "^2.8.5",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "mongoose": "^5.5.4"
+    "mongoose": "^5.5.4",
+    "@opentelemetry/sdk-node": "^0.45.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.40.3",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.45.1",
+    "@opentelemetry/resources": "^1.19.0",
+    "@opentelemetry/semantic-conventions": "^1.19.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.11"
